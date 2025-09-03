@@ -1,12 +1,44 @@
-from flask import Flask, request, jsonify
+import mlflow
+import mlflow.sklearn
 import joblib
 import pandas as pd
 import numpy as np
+import os
+from flask import Flask, request, jsonify
+
+# Set MLFlow tracking URI based on environment
+if os.environ.get('IN_CONTAINER', 'false').lower() == 'true':
+    mlflow.set_tracking_uri("http://192.168.1.100:5001")  # Replace with your host IP
+else:
+    mlflow.set_tracking_uri("http://localhost:5001")
 
 app = Flask(__name__)
-model = joblib.load('flight_price_model.pkl')
-encoder = joblib.load('encoder.pkl')
-scaler = joblib.load('scaler.pkl')
+
+# Determine base path for file loading
+base_path = '/app' if os.path.exists('/app/flight_price_model.pkl') else '.'
+
+# Load models with error handling
+try:
+    model = joblib.load(os.path.join(base_path, 'flight_price_model.pkl'))
+    encoder = joblib.load(os.path.join(base_path, 'encoder.pkl'))
+    scaler = joblib.load(os.path.join(base_path, 'scaler.pkl'))
+    print("Models loaded successfully")
+except FileNotFoundError as e:
+    print(f"Error: Model files not found - {e}")
+    raise
+except Exception as e:
+    print(f"Error loading models: {e}")
+    raise
+
+# Log the model on startup
+try:
+    with mlflow.start_run(run_name="Initial_Travel_Price_Model"):
+        mlflow.log_param("model_type", "RandomForestRegressor")
+        mlflow.log_param("data_source", "Local_Dataset")
+        mlflow.sklearn.log_model(model, "model")
+        print("Model logged to MLFlow")
+except Exception as e:
+    print(f"Error logging to MLFlow: {e}")
 
 # Define training features exactly as seen during fit
 training_features = [
@@ -72,4 +104,4 @@ def predict():
         return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5003, debug=True)

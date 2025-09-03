@@ -1,0 +1,14 @@
+artifact_uri: mlflow-artifacts:/0/aefbd9321beb4293afb10959594e941e/artifacts
+end_time: 1756918091408
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: aefbd9321beb4293afb10959594e941e
+run_name: Initial_Travel_Price_Model
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1756918089761
+status: 3
+tags: []
+user_id: home

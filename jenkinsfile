@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_USER = credentials('dockerhub-username')   // Jenkins credential ID
+        DOCKERHUB_PASS = credentials('dockerhub-password')
+        IMAGE_NAME = "travel-ml-api"
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/Vagueken/Productionization-of-ML-Systems.git'
+            }
+        }
+
+        stage('Install Dependencies & Test') {
+            steps {
+                sh '''
+                python3 -m venv venv
+                source venv/bin/activate
+                pip install -r requirements.txt
+                pytest || true   # optional if you add tests later
+                '''
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                docker build -t $DOCKERHUB_USER/$IMAGE_NAME:latest .
+                '''
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                sh '''
+                echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
+                docker push $DOCKERHUB_USER/$IMAGE_NAME:latest
+                '''
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                kubectl apply -f deployment.yaml
+                kubectl apply -f service.yaml
+                '''
+            }
+        }
+    }
+}

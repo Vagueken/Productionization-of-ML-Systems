@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: travel-ml-api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: travel-ml-api
+  template:
+    metadata:
+      labels:
+        app: travel-ml-api
+    spec:
+      containers:
+      - name: travel-ml-api
+        image: travel-ml-api:latest
+        ports:
+        - containerPort: 5003
+        volumeMounts:
+        - name: model-volume
+          mountPath: /app
+      volumes:
+      - name: model-volume
+        hostPath:
+          path: /home/docker/travel-ml-capstone
+          type: Directory
