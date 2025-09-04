@@ -1,0 +1,47 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+
+# Virtual environments
+myenv/
+airflow_env/
+.venv/
+venv/
+
+# =========================
+# Airflow & MLflow
+# =========================
+mlartifacts/
+mlruns/
+logs/
+
+# =========================
+# Data files
+# =========================
+# Ignore all CSVs in Data/ (uncomment if you only want sample data outside git)
+# Data/*.csv
+
+# =========================
+# Build & Packaging
+# =========================
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# =========================
+# VS Code / Editor
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
